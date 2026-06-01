@@ -11,14 +11,26 @@ This skill is **read-only against GitHub**. It never pushes, never posts comment
 
 All GitHub access (fetching the PR, diff, comments, threads, CI status) goes through the **github skill** — read `skills/github/SKILL.md` and use `gh` as described there. Do not encode `gh` invocations here; defer to that skill for command shapes, pagination, and JSON filtering.
 
-## 1. Identify the PR
+## 1. Choose the review mode
+
+Before doing anything else, ask the user what kind of review they want. Present three options plainly and wait for an answer:
+
+- **Comment triage** — only work through the existing reviewer comments on the PR. Skips the independent critical review (step 4).
+- **Code review** — only do an independent adversarial pass over the diff. Skips the existing-comment triage (step 5).
+- **Both** — the full flow: independent review *and* comment triage.
+
+If the user already made their intent clear in their request (e.g. "help me work through the review feedback" → comment triage; "is this change sound?" → code review), infer the mode and confirm it in one line rather than asking redundantly.
+
+The chosen mode governs which of the later steps run and what the synthesis (step 6) presents. Steps below that depend on the mode are marked accordingly.
+
+## 2. Identify the PR
 
 - If the user gave a PR number or a `github.com/...` URL, use it.
 - Otherwise resolve the PR for the current branch.
 
 Use the github skill for the mechanics.
 
-## 2. Gather context
+## 3. Gather context
 
 Pull enough to review the change on its own terms. Via the github skill, fetch:
 
@@ -30,7 +42,11 @@ Pull enough to review the change on its own terms. Via the github skill, fetch:
 
 Don't paste raw diff or raw comment dumps back to the user — read it, then synthesize.
 
-## 3. Run your own critical review
+In **comment triage** mode you can skip fetching the full diff if it isn't needed to reason about the comments — but you'll usually still want the surrounding code to form a take.
+
+## 4. Run your own critical review
+
+*(Skip this step in **comment triage** mode.)*
 
 Independently of what other reviewers said, do a genuinely adversarial pass over the diff. Be skeptical: assume there is a bug or a gap and try to find it. Use your full judgment as a reviewer — don't work from a fixed checklist.
 
@@ -43,15 +59,19 @@ For each thing you find:
 
 If the change looks genuinely clean, say so — don't manufacture findings.
 
-## 4. Triage the existing reviewer comments
+## 5. Triage the existing reviewer comments
+
+*(Skip this step in **code review** mode.)*
 
 For each existing comment on the PR, form a reasoned take: do you agree, disagree, or is it underspecified? Explain your reasoning, with code context. Treat human and bot comments the same way — this is not specific to any one reviewer.
 
-## 5. Synthesize — two distinct buckets
+## 6. Synthesize
 
-Present the assessment split into two clearly separated groups. The distinction matters:
+Present the assessment in the buckets relevant to the chosen mode. Where both buckets apply, keep them clearly separated — the distinction matters.
 
 ### PR comments (require user action regardless)
+
+*(Present in **comment triage** and **both** modes.)*
 
 Comments left on the PR by reviewers. These need a response **on the PR** — a reply or a resolution — whether or not we agree with them, because another party is waiting on them. For each:
 
@@ -63,11 +83,13 @@ We do **not** post these. The user replies. When drafting a reply body for them,
 
 ### Agent findings (for the user to consider locally)
 
-Your own review findings from step 3. These carry **no external obligation** — there's no thread waiting on them. They're for the user to weigh and decide whether to act on. For each: file:line, severity, the concern, and a suggested direction.
+*(Present in **code review** and **both** modes.)*
 
-Keep the two buckets visually and conceptually separate so the user always knows what needs a PR action vs. what's just our advice.
+Your own review findings from step 4. These carry **no external obligation** — there's no thread waiting on them. They're for the user to weigh and decide whether to act on. For each: file:line, severity, the concern, and a suggested direction.
 
-## 6. Work through it together
+In **both** mode, keep the two buckets visually and conceptually separate so the user always knows what needs a PR action vs. what's just our advice.
+
+## 7. Work through it together
 
 Walk the user through the assessment collaboratively. Let them drive which items to dig into.
 
