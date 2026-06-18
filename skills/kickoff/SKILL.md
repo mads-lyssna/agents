@@ -36,9 +36,9 @@ If the ticket is essentially empty or you can't tell what it's asking for, stop 
 
 **Do not run a full requirements interrogation here.** Rigorous clarification of scope, edge cases, and tradeoffs is the plan skill's Clarify step — defer to it rather than duplicating it. This gate is just "is there enough to start, and is it the right thing".
 
-## 4. Mark the ticket In Progress
+## 4. Mark the ticket Doing
 
-Once the sufficiency check passes, transition the ticket to started via the linear skill (e.g. `linear issue start <ID>`, or `linear issue update <ID> -s "In Progress"`).
+Once the sufficiency check passes, transition the ticket to started via the linear skill (e.g. `linear issue start <ID>`, or `linear issue update <ID> -s "Doing"`).
 
 **This is the only write Kickoff makes to Linear.** Do not post comments, change assignees, or write anything else back to the ticket.
 
