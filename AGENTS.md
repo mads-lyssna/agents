@@ -35,6 +35,7 @@ The following non-standard CLI tools are available; prefer them over the default
 
 - Use multiple lines for inheretence when defining modules
 - Prefer no default arguments when defining functions. For things that we want to default when nil is passed in, use a ||= fallback
+- Prefer stateless serializer instances (inject dependencies, pass data to `call` not `initialize`, etc)
 
 ## Context efficient bash
 
