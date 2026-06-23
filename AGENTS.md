@@ -35,8 +35,8 @@ The following non-standard CLI tools are available; prefer them over the default
 
 - Use multiple lines for inheretence when defining modules
 - Prefer no default arguments when defining functions. For things that we want to default when nil is passed in, use a ||= fallback
-- Prefer stateless service/serializer objects: inject collaborators, pass runtime data to `call`, and do not store per-call state
-- Prefer project dependency helpers or explicit named keyword dependencies over generic `initialize(**dependencies)` plumbing
+- Prefer stateless service/serializer objects: inject collaborators, pass runtime data to public methods (like `call`), and do not store per-call/request state
+- Prefer project dependency helpers for injectable collaborators. Avoid generic `initialize(**dependencies)` or `initialize(depenndency:)` plumbing where possible
 
 ## Context efficient bash
 
