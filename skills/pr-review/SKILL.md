@@ -1,15 +1,15 @@
 ---
 name: pr-review
-description: Collaboratively review a pull request — pull the full PR context, run an independent critical review of the diff, triage existing reviewer comments, and deliver a reasoned assessment. Trigger when the user asks to review a PR, work through PR feedback, or wants a second opinion on a change before merging. Read-only by default; can make targeted local code changes on request, but never pushes or posts.
+description: Collaboratively review a pull request — pull the full PR context, run an independent critical review of the diff, triage existing reviewer comments, and deliver a reasoned assessment. Trigger when the user asks to review a PR, work through PR feedback, or wants a second opinion on a change before merging. Read-only by default; can make targeted local code changes on request, and can reply to / resolve PR comments only with explicit per-action approval. Never pushes, merges, or replies to humans without approval.
 ---
 
 # Reviewing a pull request
 
 Review a PR *with* the user, not for them. The output is a reasoned assessment they can act on — not an auto-applied set of fixes.
 
-This skill is **read-only against GitHub**. It never pushes, never posts comments, never approves or requests changes. It may make targeted code changes **locally** when the user explicitly asks, but the user owns everything that touches the PR.
+This skill is **read-by-default against GitHub**. It never merges, and never approves/requests-changes. It may make targeted code changes **locally** when asked, and — only with explicit approval — push those fixes and post/resolve threads in response to a bot review (see step 7). The user owns everything that touches the PR.
 
-All GitHub access (fetching the PR, diff, comments, threads, CI status) goes through the **github skill** — read `skills/github/SKILL.md` and use `gh` as described there. Do not encode `gh` invocations here; defer to that skill for command shapes, pagination, and JSON filtering.
+All GitHub access (fetching context, and any approved replies/resolutions) goes through the **github skill** — read `skills/github/SKILL.md` and use `gh` as described there, including its mutation tiers and human-vs-bot guard. Do not encode `gh` invocations here; defer to that skill for command shapes, pagination, and JSON filtering.
 
 ## 1. Choose the review mode
 
@@ -79,7 +79,7 @@ Comments left on the PR by reviewers. These need a response **on the PR** — a 
 - Your reasoned take (agree / disagree / needs-info, and why)
 - Suggested response or resolution for the user to act on
 
-We do **not** post these. The user replies. When drafting a reply body for them, note the backtick gotcha (see below).
+Draft the reply or resolution, but post nothing until the user approves it action-by-action (see step 7); note the backtick gotcha when drafting a body.
 
 ### Agent findings (for the user to consider locally)
 
@@ -93,10 +93,14 @@ In **both** mode, keep the two buckets visually and conceptually separate so the
 
 Walk the user through the assessment collaboratively. Let them drive which items to dig into.
 
-If the user asks you to make a change, make it **locally** in the relevant file, scoped tightly to the item discussed, and confirm before moving on. Do not commit unless asked, and never push.
+If the user asks you to make a change, make it **locally** in the relevant file, scoped tightly to the item discussed, and confirm before moving on.
 
-## Posting replies is out of scope
+## Acting on the PR (replies, resolutions, pushing)
 
-This skill does not post to GitHub. If the user wants to reply to a comment (human or bot) or post a resolution, that is a mutation outside this skill and the read-only github skill — the user runs it, or explicitly confirms before any write.
+Responding to a bot review usually means three things go together: push the fixes, reply to the threads, resolve them. All are mutations gated behind **explicit approval** — draft the full set (the commits/push, each reply body, which threads to resolve) for the user to see first, then act.
 
-When you draft a reply body for the user: **never** embed it inline in a shell command — backticks get mangled by shell substitution and break code spans. Write the body to a file first and have the user pass it with `--body-file`.
+For **bot** reviewers (Copilot, CodeRabbit, etc.) this is the happy path: present the batch — push + replies + resolutions — and **one approval covers the whole batch**. Re-confirm only for a new batch.
+
+**Humans are never in a batch.** Never reply to a human off a general "deal with the comments" instruction — flag that the author is a person and get approval that names that fact, handled on its own. When unsure whether an author is a bot, assume human and exclude it. Never merge, close, approve, or request changes from this skill.
+
+Defer to the github skill for command shapes and its mutation tiers. When drafting a reply body: **never** embed it inline in a shell command — backticks get mangled by shell substitution and break code spans. Write the body to a file and pass it with `--body-file`.

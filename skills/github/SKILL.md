@@ -1,6 +1,6 @@
 ---
 name: github
-description: Use the GitHub CLI (gh) for all read-only GitHub work — reading files from a repo, repo/issue/code search, PR review, Actions runs. ALWAYS prefer gh over web fetching, and prefer `gh api repos/.../contents/...` over cloning when you just need to read a handful of files. Trigger when the user names a repo/issue/PR, pastes a github.com URL (including `/tree/` or `/blob/` paths), wants to debug a library via its issues, find real-world usage via code search, inspect Actions, or review a PR. NEVER use for mutations.
+description: Use the GitHub CLI (gh) for GitHub work — reading files from a repo, repo/issue/code search, PR review, Actions runs, and (only with explicit per-action user approval) low-risk mutations like commenting, replying to review threads, and resolving threads. ALWAYS prefer gh over web fetching, and prefer `gh api repos/.../contents/...` over cloning when you just need to read a handful of files. Trigger when the user names a repo/issue/PR, pastes a github.com URL (including `/tree/` or `/blob/` paths), wants to debug a library via its issues, find real-world usage via code search, inspect Actions, or review a PR. Read-by-default; never mutate without explicit approval, never merge/close/delete without unmistakable confirmation.
 ---
 
 # Using the gh CLI
@@ -171,24 +171,22 @@ gh workflow view ci.yml -R owner/repo                 # shows the YAML and recen
 - Assume `gh` is already authenticated (`gh auth status` to verify). If it fails with auth errors, tell the user — do not try to log them in.
 - Hitting rate limits? Use `--json` + `-q` to fetch only what you need, and `--limit` to cap pagination.
 
-## Forbidden mutations
+## Mutations
 
-This skill is read-only. **Never** invoke any `gh` command that writes to GitHub. The full list of forbidden verbs/flags:
+Reads (everything above) run freely. Anything that writes to GitHub needs **explicit per-action approval** — the user must have seen the exact action and said yes. A general request ("work through the feedback", "deal with the PR") is never approval to write.
 
-- `gh repo create`, `gh repo delete`, `gh repo fork`, `gh repo rename`, `gh repo edit`, `gh repo archive`, `gh repo unarchive`, `gh repo set-default`
-- `gh issue create`, `gh issue close`, `gh issue reopen`, `gh issue comment`, `gh issue edit`, `gh issue delete`, `gh issue lock`, `gh issue unlock`, `gh issue transfer`, `gh issue pin`, `gh issue unpin`, `gh issue develop`
-- `gh pr create`, `gh pr close`, `gh pr reopen`, `gh pr comment`, `gh pr edit`, `gh pr merge`, `gh pr ready`, `gh pr review` (when `--approve`/`--request-changes`/`--comment`)
-- `gh release create`, `gh release delete`, `gh release edit`, `gh release upload`, `gh release download` (writes locally, but usually unintended)
-- `gh gist create`, `gh gist edit`, `gh gist delete`, `gh gist clone`
-- `gh workflow run`, `gh workflow enable`, `gh workflow disable`, `gh run cancel`, `gh run rerun`, `gh run delete`
-- `gh label create`, `gh label edit`, `gh label delete`, `gh label clone`
-- `gh secret set`, `gh secret delete`, `gh variable set`, `gh variable delete`
-- `gh ssh-key add`, `gh ssh-key delete`, `gh gpg-key add`, `gh gpg-key delete`
-- `gh project create`, `gh project edit`, `gh project delete`, `gh project item-add`, `gh project item-edit`, `gh project item-delete`, `gh project field-create`, `gh project field-delete`
-- `gh api ... -X POST/PATCH/PUT/DELETE` (any non-GET HTTP method) — and `--method`/`-X` flags with those verbs
-- `gh auth login`, `gh auth logout`, `gh auth refresh`, `gh auth setup-git`, `gh config set`, `gh alias set`, `gh alias delete`, `gh extension install`, `gh extension remove`, `gh extension upgrade`
-- Any `gh` subcommand whose `--help` describes it as creating, deleting, editing, closing, merging, commenting, approving, requesting, uploading, setting, adding, or removing
+**Allowed once approved** — commenting, replying to a review thread, resolving/unresolving threads. Draft the full set (verb, target, author, body) for the user; **one approval covers the whole batch** for bot threads. Re-confirm only for a new batch.
 
-**If the user asks you to perform a mutation** (e.g. "open an issue", "comment on this PR", "merge it"): stop and confirm explicitly before running anything.
+```bash
+gh pr comment 1234 -R owner/repo --body-file /tmp/reply.md        # body-file: inline backticks get mangled
+gh api repos/owner/repo/pulls/1234/comments/<comment_id>/replies -X POST -f body="$(cat /tmp/reply.md)"
+gh api graphql -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$id}){thread{isResolved}}}' -f id=<thread_node_id>
+```
 
-**If you're unsure whether a command mutates:** run `gh <command> --help` and read it. Default to not running it.
+Get `<comment_id>` / `<thread_node_id>` from the read endpoints first.
+
+**Human-vs-bot guard.** Always check the comment author before replying. Bots (Copilot, CodeRabbit, dependabot, CI) can be batch-approved together. A **human** author is never part of a batch: handle it individually, surface that the author is a person, and get approval that names that fact. When unsure, assume human and exclude it from the batch.
+
+**Never perform (refuse, hand the command back to the user):** `gh pr merge`/`close`/`reopen`/`ready`/`edit`, `gh pr review --approve`/`--request-changes`, and any destructive or state-changing verb on repos, issues, releases, gists, workflows/runs, labels, secrets/variables, keys, projects, or auth/config — plus any `gh api -X POST/PATCH/PUT/DELETE` not listed as allowed above. These are never inferred from a review workflow; require a separate, unmistakable confirmation spelling out the effect.
+
+**If unsure which bucket applies:** run `gh <command> --help`, and default to the stricter one.
