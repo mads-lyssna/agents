@@ -101,6 +101,8 @@ Responding to a bot review usually means three things go together: push the fixe
 
 For **bot** reviewers (Copilot, CodeRabbit, etc.) this is the happy path: present the batch — push + replies + resolutions — and **one approval covers the whole batch**. Re-confirm only for a new batch.
 
+When replying to a bot, don't write as if it were a person — no greetings, thanks, or conversational framing. Keep it a brief, factual note of what was done (e.g. "Fixed in <sha>: guard added for the nil case.") or, if not actioned, a one-line reason why (e.g. "Not changing — this path is unreachable because the caller validates upstream.").
+
 **Humans are never in a batch.** Never reply to a human off a general "deal with the comments" instruction — flag that the author is a person and get approval that names that fact, handled on its own. When unsure whether an author is a bot, assume human and exclude it. Never merge, close, approve, or request changes from this skill.
 
 Defer to the github skill for command shapes and its mutation tiers. When drafting a reply body: **never** embed it inline in a shell command — backticks get mangled by shell substitution and break code spans. Write the body to a file and pass it with `--body-file`.
