@@ -37,6 +37,7 @@ The following non-standard CLI tools are available; prefer them over the default
 - Prefer no default arguments when defining functions. For things that we want to default when nil is passed in, use a ||= fallback
 - Prefer stateless service/serializer objects: inject collaborators, pass runtime data to public methods (like `call`), and do not store per-call/request state
 - Prefer project dependency helpers for injectable collaborators. Avoid generic `initialize(**dependencies)` or `initialize(depenndency:)` plumbing where possible
+- After writing or editing Ruby code, lint with Rubocop (`bundle exec rubocop <files>`) as well as standard `rspec` etc validation
 
 ## Context efficient bash
 
@@ -55,3 +56,10 @@ out=$(tsc --noEmit 2>&1) && echo "typecheck clean" || { printf '%s\n' "$out"; ex
 - Use the Explore subagent for non-trivial codebase discovery: locating symbols, tracing usage, answering "where is X / what references Y / what calls Z", or mapping patterns across files. Reach for it before running your own multi-step or wide grep/find sweeps; it keeps the main context lean. Skip it when a targeted read or two would answer the question — a single known file, an obvious local lookup, or a tiny edit; don't escalate that into a full Explore
 - Use the Review subagent as an independent second-pass reviewer for large, risky, or multi-file diffs during an active implementation session. Avoid delegating to Review in a fresh session where the user’s main request is already a review; you have no context to isolate from, so review the artifact directly
 - Use General purpose subagents only for well-scoped parallel work with clear boundaries
+
+## Devcontainers
+
+- Some repos only have a working dev environment inside a devcontainer — Ruby/Bundler deps, the database, and services are provisioned there, not on the host.
+- When environment-dependent commands fail in a way that suggests the environment isn't set up (missing gems/`bundle` failures, no DB connection, missing services/binaries), first determine whether you're on the host or inside the container before doing anything else. The host is macOS (`uname -s` = `Darwin`); the devcontainer is Linux (`uname -s` = `Linux`, and typically has `/.dockerenv`).
+- On the host (Darwin): stop and flag it to the user. Do not attempt to self-heal. Never install dependencies to work around it. Host-level installs pollute the global environment and are not the fix; the fix is to run inside the container.
+- Inside the container (Linux devcontainer): be self-directed. Attempting to repair the environment is safe and expected — run `bundle install`, install missing gems, run pending migrations / DB setup, or start required services as needed to unblock the task. The container is disposable, so global installs there are fine.
