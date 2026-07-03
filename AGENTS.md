@@ -38,6 +38,7 @@ The following non-standard CLI tools are available; prefer them over the default
 - Prefer stateless service/serializer objects: inject collaborators, pass runtime data to public methods (like `call`), and do not store per-call/request state
 - Prefer project dependency helpers for injectable collaborators. Avoid generic `initialize(**dependencies)` or `initialize(depenndency:)` plumbing where possible
 - After writing or editing Ruby code, lint with Rubocop (`bundle exec rubocop <files>`) as well as standard `rspec` etc validation
+- When authoring Ruby tests, prefer doing test steup in a context block with only actions and assertions in the `it` block
 
 ## Context efficient bash
 
