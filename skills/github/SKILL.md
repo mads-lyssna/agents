@@ -1,6 +1,6 @@
 ---
 name: github
-description: Use the GitHub CLI (gh) for GitHub work — reading files from a repo, repo/issue/code search, PR review, Actions runs, and (only with explicit per-action user approval) low-risk mutations like commenting, replying to review threads, and resolving threads. ALWAYS prefer gh over web fetching, and prefer `gh api repos/.../contents/...` over cloning when you just need to read a handful of files. Trigger when the user names a repo/issue/PR, pastes a github.com URL (including `/tree/` or `/blob/` paths), wants to debug a library via its issues, find real-world usage via code search, inspect Actions, or review a PR. Read-by-default; never mutate without explicit approval, never merge/close/delete without unmistakable confirmation.
+description: Use the GitHub CLI (gh) for GitHub work — reading files from a repo, repo/issue/code search, PR review, Actions runs, and mutations only after explicit per-action user approval. ALWAYS prefer gh over web fetching, and prefer `gh api repos/.../contents/...` over cloning when you just need to read a handful of files. Trigger when the user names a repo/issue/PR, pastes a github.com URL (including `/tree/` or `/blob/` paths), wants to debug a library via its issues, find real-world usage via code search, inspect Actions, or review a PR. Read-by-default; never mutate without explicit approval, and require unmistakable confirmation for destructive or high-impact actions.
 ---
 
 # Using the gh CLI
@@ -173,11 +173,12 @@ gh workflow view ci.yml -R owner/repo                 # shows the YAML and recen
 
 ## Mutations
 
-Reads (everything above) run freely. Anything that writes to GitHub needs **explicit per-action approval** — the user must have seen the exact action and said yes. A general request ("work through the feedback", "deal with the PR") is never approval to write.
+Reads (everything above) run freely. Anything that writes to GitHub needs **explicit per-action approval** — before running it, show the user the exact action, target, and payload or effect, and wait for them to say yes. A general request ("work through the feedback", "deal with the PR") is never approval to write. Approval for one action does not carry over to later actions.
 
-**Allowed once approved** — commenting, replying to a review thread, resolving/unresolving threads. Draft the full set (verb, target, author, body) for the user; **one approval covers the whole batch** for bot threads. Re-confirm only for a new batch.
+Once approved, mutations supported by `gh` are allowed, including editing PRs or issues, commenting, replying to review threads, resolving/unresolving threads, changing labels or assignees, rerunning workflows, and changing repository settings. Use the narrowest command that performs only the approved change.
 
 ```bash
+gh pr edit 1234 -R owner/repo --title "Approved title"
 gh pr comment 1234 -R owner/repo --body-file /tmp/reply.md        # body-file: inline backticks get mangled
 gh api repos/owner/repo/pulls/1234/comments/<comment_id>/replies -X POST -f body="$(cat /tmp/reply.md)"
 gh api graphql -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$id}){thread{isResolved}}}' -f id=<thread_node_id>
@@ -185,8 +186,10 @@ gh api graphql -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$
 
 Get `<comment_id>` / `<thread_node_id>` from the read endpoints first.
 
+An explicitly enumerated batch may receive one approval. Draft the full batch (verb, target, and payload or effect for every action); approval applies only to that batch, and any additions or changes require new approval.
+
 **Human-vs-bot guard.** Always check the comment author before replying. Bots (Copilot, CodeRabbit, dependabot, CI) can be batch-approved together. A **human** author is never part of a batch: handle it individually, surface that the author is a person, and get approval that names that fact. When unsure, assume human and exclude it from the batch.
 
-**Never perform (refuse, hand the command back to the user):** `gh pr merge`/`close`/`reopen`/`ready`/`edit`, `gh pr review --approve`/`--request-changes`, and any destructive or state-changing verb on repos, issues, releases, gists, workflows/runs, labels, secrets/variables, keys, projects, or auth/config — plus any `gh api -X POST/PATCH/PUT/DELETE` not listed as allowed above. These are never inferred from a review workflow; require a separate, unmistakable confirmation spelling out the effect.
+**Destructive or high-impact actions** — including merging, closing, deleting, publishing releases, approving or requesting changes on a PR, changing secrets/variables or repository visibility, and auth/config changes — require a separate, unmistakable confirmation that spells out the target and effect. Never infer approval from a broader workflow. If the user has not explicitly confirmed, do not run the command.
 
-**If unsure which bucket applies:** run `gh <command> --help`, and default to the stricter one.
+**If unsure whether a command mutates:** run `gh <command> --help` and treat it as a mutation until verified otherwise.
