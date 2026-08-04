@@ -11,24 +11,13 @@ The following non-standard CLI tools are available; prefer them over the default
 - Prefer `fd` instead of `find` (example: `fd "filename"` instead of `find . -name "filename"`)
 - Infer the package manager from the project lockfile; if no lockfile exists, fall back to system defaults (eg: npm)
 
-<<<<<<< HEAD
-## Commit preferences
-||||||| parent of 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
-## Commit guidance
-=======
 ## Git commits
->>>>>>> 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
 
 - Never force-add or commit a file ignored by Git
 - Follow a lightweight Conventional Commit pattern for commit messages: `<type>: <brief description>`
 - Add a scope (ie: `<type>(scope):`) only if it adds meaningful clarity, eg: when the commit targets one package in a monorepo of many
 - Add a body (ie: after a blank line) only if there is non-obvious context not inferable from the main message
 
-<<<<<<< HEAD
-## Testing preferences
-||||||| parent of 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
-## Testing guidance
-=======
 ## Engineering economy
 
 - Prefer coherent changes that satisfy current requirements and fits the repository's existing architecture
@@ -38,7 +27,6 @@ The following non-standard CLI tools are available; prefer them over the default
 - Keep verification proportional to changed behaviour and material risk, following the repository's existing testing and validation conventions
 
 ## Testing
->>>>>>> 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
 
 - Tests must verify behaviour, not restate implementation. Before adding a test, be able to identify the real bug or regression it would catch; if you can't, skip it.
 - Test public contracts and observable outcomes, not internals; skip trivial formatters, stdlib wrappers, and pass-through helpers unless they encode important behaviour. Assert mock/fake internals only when that interaction is itself the contract.
@@ -48,7 +36,6 @@ The following non-standard CLI tools are available; prefer them over the default
 
 ## Code conventions
 
-<<<<<<< HEAD
 ### Typescript
 
 - Prefer `type` over `interface` unless features of interfaces (eg: declaration merging) are strictly required
@@ -62,38 +49,10 @@ The following non-standard CLI tools are available; prefer them over the default
 - After writing or editing Ruby code, lint with Rubocop (`bundle exec rubocop <files>`) as well as standard `rspec` etc validation
 - When authoring Ruby tests, prefer doing test steup in a context block with only actions and assertions in the `it` block
 
-## Context efficient bash
-
-When the only signal you need from a command is whether it succeeded (eg: tests, lint/typecheck/format checks, builds, dependency installs), wrap it so a success output collapses to a short label and a non-zero exit prints its full output. Skip when you actually need the output (eg: git diff/status, watching long-running streams, test coverage numbers, etc)
-
-```sh
-out=$(<cmd> 2>&1) && echo "<passed label>" || { printf '%s\n' "$out"; exit 1; }
-
-# eg
-out=$(pnpm test 2>&1) && echo "tests pass" || { printf '%s\n' "$out"; exit 1; }
-out=$(tsc --noEmit 2>&1) && echo "typecheck clean" || { printf '%s\n' "$out"; exit 1; }
-```
-
 ## Devcontainers
 
 - Some repos only have a working dev environment inside a devcontainer — Ruby/Bundler deps, the database, and services are provisioned there, not on the host.
 - When environment-dependent commands fail in a way that suggests the environment isn't set up (missing gems/`bundle` failures, no DB connection, missing services/binaries), first determine whether you're on the host or inside the container before doing anything else. The host is macOS (`uname -s` = `Darwin`); the devcontainer is Linux (`uname -s` = `Linux`, and typically has `/.dockerenv`).
 - On the host (Darwin): stop and flag it to the user. Do not attempt to self-heal. Never install dependencies to work around it. Host-level installs pollute the global environment and are not the fix; the fix is to run inside the container.
 - Inside the container (Linux devcontainer): be self-directed. Attempting to repair the environment is safe and expected — run `bundle install`, install missing gems, run pending migrations / DB setup, or start required services as needed to unblock the task. The container is disposable, so global installs there are fine.
-||||||| parent of 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
 - In TypeScript projects, prefer `type` over `interface` unless features of interfaces (eg: declaration merging) are strictly required
-
-## Context efficient bash
-
-When the only signal you need from a command is whether it succeeded (eg: tests, lint/typecheck/format checks, builds, dependency installs), wrap it so a success output collapses to a short label and a non-zero exit prints its full output. Skip when you actually need the output (eg: git diff/status, watching long-running streams, test coverage numbers, etc)
-
-```sh
-out=$(<cmd> 2>&1) && echo "<passed label>" || { printf '%s\n' "$out"; exit 1; }
-
-# eg
-out=$(pnpm test 2>&1) && echo "tests pass" || { printf '%s\n' "$out"; exit 1; }
-out=$(tsc --noEmit 2>&1) && echo "typecheck clean" || { printf '%s\n' "$out"; exit 1; }
-```
-=======
-- In TypeScript projects, prefer `type` over `interface` unless features of interfaces (eg: declaration merging) are strictly required
->>>>>>> 29649eb (feat: remove context-efficient bash from AGENTS in favour of upcoming)
