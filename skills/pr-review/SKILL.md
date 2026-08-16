@@ -63,7 +63,17 @@ If the change looks genuinely clean, say so — don't manufacture findings.
 
 *(Skip this step in **code review** mode.)*
 
-For each existing comment on the PR, form a reasoned take: do you agree, disagree, or is it underspecified? Explain your reasoning, with code context. Treat human and bot comments the same way — this is not specific to any one reviewer.
+For each existing comment on the PR, form a reasoned take grounded in the actual code and PR goals. Apply the same evidentiary standard regardless of author, but do not give automated feedback presumptive authority: bot comments are hypotheses to verify, not instructions to implement.
+
+Classify each comment as **actionable**, **optional/nit**, **not warranted**, or **needs context**. In doing so:
+
+- Verify that the claimed issue is reachable or otherwise credible given the control flow, contracts, and surrounding code.
+- Distinguish correctness, security, data-integrity, user-facing, and established-contract concerns from preferences, speculative edge cases, and premature abstractions.
+- Apply YAGNI and proportionality: don't add complexity for an unsupported future possibility or a negligible benefit.
+- Account for repository conventions and the maintenance cost or new failure surface of the suggested change.
+- Notice comments that are stale, duplicated, already addressed, or based on a misreading of the diff.
+
+Explain the classification and reasoning. Do not manufacture a code change merely to satisfy a comment; resolving it with a concise technical rationale is a valid outcome.
 
 ## 6. Synthesize
 
@@ -73,11 +83,11 @@ Present the assessment in the buckets relevant to the chosen mode. Where both bu
 
 *(Present in **comment triage** and **both** modes.)*
 
-Comments left on the PR by reviewers. These need a response **on the PR** — a reply or a resolution — whether or not we agree with them, because another party is waiting on them. For each:
+Comments left on the PR by reviewers. These need a response **on the PR** — a reply or a resolution — whether or not we agree with them, because another party is waiting on them. That external obligation does **not** imply an obligation to change the code. For each:
 
 - Who left it, file:line, what they said
-- Your reasoned take (agree / disagree / needs-info, and why)
-- Suggested response or resolution for the user to act on
+- Your classification (**actionable** / **optional/nit** / **not warranted** / **needs context**) and why
+- Suggested response or resolution for the user to act on, explicitly recommending no code change when the suggestion is unsupported, disproportionate, or YAGNI
 
 Draft the reply or resolution, but post nothing until the user approves it action-by-action (see step 7); note the backtick gotcha when drafting a body.
 
@@ -97,9 +107,9 @@ If the user asks you to make a change, make it **locally** in the relevant file,
 
 ## Acting on the PR (replies, resolutions, pushing)
 
-Responding to a bot review usually means three things go together: push the fixes, reply to the threads, resolve them. All are mutations gated behind **explicit approval** — draft the full set (the commits/push, each reply body, which threads to resolve) for the user to see first, then act.
+Responding to a bot review may involve pushing the fixes the user chose, replying to the threads, and resolving them. A code change is not required for comments classified as optional or not warranted. All mutations are gated behind **explicit approval** — draft the full set (any commits/push, each reply body, which threads to resolve) for the user to see first, then act.
 
-For **bot** reviewers (Copilot, CodeRabbit, etc.) this is the happy path: present the batch — push + replies + resolutions — and **one approval covers the whole batch**. Re-confirm only for a new batch.
+For **bot** reviewers (Copilot, CodeRabbit, etc.) the happy path is to present one batch containing the chosen actions — any push, replies, and resolutions — and **one approval covers the whole batch**. Re-confirm only for a new batch.
 
 When replying to a bot, don't write as if it were a person — no greetings, thanks, or conversational framing. Keep it a brief, factual note of what was done (e.g. "Fixed in <sha>: guard added for the nil case.") or, if not actioned, a one-line reason why (e.g. "Not changing — this path is unreachable because the caller validates upstream.").
 
