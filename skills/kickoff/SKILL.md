@@ -1,15 +1,15 @@
 ---
 name: kickoff
-description: Turn a Linear ticket into an executable implementation plan. Reads the ticket and all its context, sets it to In Progress, explores the codebase, then produces a written plan via the plan skill. Starting point is a Linear ticket (URL, short ID, or the current branch's issue); output is a ready-to-execute plan.
+description: Turn a Linear ticket into an executable implementation plan. Reads the ticket and all its context through Linear MCP, sets it to Doing, explores the codebase, then produces a written plan via the plan skill. Starting point is a Linear ticket (URL, short ID, or the current branch's issue); output is a ready-to-execute plan.
 ---
 
 # Kickoff
 
 Take a Linear ticket and produce a written implementation plan an executor can pick up cold.
 
-This skill **orchestrates** two others — it does not reimplement them:
+This skill orchestrates Linear MCP and the plan skill:
 
-- **Linear access** goes through the linear skill. Read `skills/linear/SKILL.md` and use `linear` as described there. Don't encode `linear` command shapes here.
+- **Linear access** goes through the Linear MCP tools exposed by the harness. Use the available tool schemas as the source of truth; don't fall back to the removed Linear skill, the `linear` CLI, the web UI, or raw API calls.
 - **Plan authoring** goes through the plan skill. Read `skills/plan/SKILL.md` and follow its process and templates. Don't reimplement clarification, shape choice, location, or validation here.
 
 Kickoff's job is the glue: resolve the ticket, gather its context, confirm it's worth starting, mark it started, do ticket-grounded exploration, then hand a well-briefed problem to the plan skill.
@@ -17,11 +17,11 @@ Kickoff's job is the glue: resolve the ticket, gather its context, confirm it's 
 ## 1. Identify the ticket
 
 - If the user gave a `linear.app` URL or short ID (e.g. `ENG-123`), use it.
-- Otherwise resolve the current branch's issue before asking. (linear skill: `linear issue id`.)
+- Otherwise inspect the current Git branch and extract its Linear short ID (e.g. `ENG-123`, matched case-insensitively). Use it when exactly one ID is present; ask the user if the branch has none or is ambiguous.
 
 ## 2. Read the ticket and gather context
 
-Via the linear skill, pull the full issue with comments, then follow the threads that matter: linked documents, sub-issues, related/blocking issues, attachments, and project context. Read enough to understand the problem on its own terms.
+Via Linear MCP, pull the full issue with comments, then follow the threads that matter: linked documents, sub-issues, related/blocking issues, attachments, and project context. Read enough to understand the problem on its own terms.
 
 Synthesize what you learn — don't paste raw command output back to the user.
 
@@ -38,7 +38,7 @@ If the ticket is essentially empty or you can't tell what it's asking for, stop 
 
 ## 4. Mark the ticket Doing
 
-Once the sufficiency check passes, transition the ticket to started via the linear skill (e.g. `linear issue start <ID>`, or `linear issue update <ID> -s "Doing"`).
+Once the sufficiency check passes, use Linear MCP to transition the ticket to `Doing`. If the required write tool is unavailable or the update fails, tell the user rather than claiming the ticket was started.
 
 **This is the only write Kickoff makes to Linear.** Do not post comments, change assignees, or write anything else back to the ticket.
 
