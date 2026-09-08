@@ -19,7 +19,6 @@ Skills are loaded based on the task context rather than invoked for every reques
 | [kickoff](skills/kickoff/SKILL.md)     | Turn a Linear ticket into an implementation-ready plan using Linear MCP for context gathering and issue updates.                                      |
 | [plan](skills/plan/SKILL.md)           | Produce a written implementation plan that a future executor can use without the original conversation.                                                  |
 | [pr-review](skills/pr-review/SKILL.md) | Collaboratively review a pull request by gathering context, independently reviewing the diff, and triaging reviewer feedback.                            |
-| [sentry](skills/sentry/SKILL.md)       | Use the `sentry` CLI for read-only Sentry work across issues, events, traces, spans, logs, replays, releases, and related APIs.                          |
 
 ## Plan templates
 
