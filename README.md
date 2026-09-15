@@ -12,13 +12,14 @@ Personal configuration for coding agents: shared working conventions in [`AGENTS
 
 Skills are loaded based on the task context rather than invoked for every request.
 
-| Skill                                  | Purpose                                                                                                                                                  |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [datadog](skills/datadog/SKILL.md)     | Use the `pup` CLI for Datadog observability work across logs, metrics, traces, monitors, incidents, dashboards, security, and related APIs.              |
-| [github](skills/github/SKILL.md)       | Use the `gh` CLI for GitHub repository, issue, PR, review, search, and Actions work.                                                                     |
-| [kickoff](skills/kickoff/SKILL.md)     | Turn a Linear ticket into an implementation-ready plan using Linear MCP for context gathering and issue updates.                                      |
-| [plan](skills/plan/SKILL.md)           | Produce a written implementation plan that a future executor can use without the original conversation.                                                  |
-| [pr-review](skills/pr-review/SKILL.md) | Collaboratively review a pull request by gathering context, independently reviewing the diff, and triaging reviewer feedback.                            |
+| Skill                                      | Purpose                                                                                                                                                  |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [datadog](skills/datadog/SKILL.md)         | Use the `pup` CLI for Datadog observability work across logs, metrics, traces, monitors, incidents, dashboards, security, and related APIs.              |
+| [github](skills/github/SKILL.md)           | Use the `gh` CLI for GitHub repository, issue, PR, review, search, and Actions work.                                                                     |
+| [kickoff](skills/kickoff/SKILL.md)         | Turn a Linear ticket into an implementation-ready plan using Linear MCP for context gathering and issue updates.                                      |
+| [plan](skills/plan/SKILL.md)               | Produce a written implementation plan that a future executor can use without the original conversation.                                                  |
+| [pr-review](skills/pr-review/SKILL.md)     | Collaboratively review a pull request by gathering context, independently reviewing the diff, and triaging reviewer feedback.                            |
+| [rebase-main](skills/rebase-main/SKILL.md) | Rebase the current branch onto the latest `origin/main`, resolve clear conflicts, and confirm before force-pushing with lease.                            |
 
 ## Plan templates
 
