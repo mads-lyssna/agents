@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Collaboratively review a pull request — pull the full PR context, run an independent critical review of the diff, triage existing reviewer comments, and deliver a reasoned assessment. Trigger when the user asks to review a PR, work through PR feedback, or wants a second opinion on a change before merging. Read-only by default; can make targeted local code changes on request, and can reply to / resolve PR comments only with explicit per-action approval. Never pushes, merges, or replies to humans without approval.
+description: Collaboratively review a pull request — default to triaging existing reviewer comments, then offer an independent code review as a follow-up unless already requested. Trigger when the user asks to review a PR, work through PR feedback, or wants a second opinion on a change before merging. Read-only by default; can make targeted local code changes on request, and can reply to / resolve PR comments only with explicit per-action approval. Never pushes, merges, or replies to humans without approval.
 ---
 
 # Reviewing a pull request
@@ -13,13 +13,13 @@ All GitHub access (fetching context, and any approved replies/resolutions) goes 
 
 ## 1. Choose the review mode
 
-Before doing anything else, ask the user what kind of review they want. Present three options plainly and wait for an answer:
+Default to **comment triage** without asking the user to choose a mode upfront. A generic request such as "review this PR" means reviewing the existing comments, not automatically doing an independent code review.
 
-- **Comment triage** — only work through the existing reviewer comments on the PR. Skips the independent critical review (step 4).
-- **Code review** — only do an independent adversarial pass over the diff. Skips the existing-comment triage (step 5).
-- **Both** — the full flow: independent review *and* comment triage.
+- **Comment triage** (default) — work through the existing reviewer comments on the PR. Skips the independent critical review (step 4).
+- **Code review** — when the user asks for an independent review of the code (e.g. "review the diff" or "is this change sound?"), do an adversarial pass over the diff. Skips the existing-comment triage (step 5).
+- **Both** — when the user asks for both code review and comment triage, run the full flow.
 
-If the user already made their intent clear in their request (e.g. "help me work through the review feedback" → comment triage; "is this change sound?" → code review), infer the mode and confirm it in one line rather than asking redundantly.
+State the inferred mode in one line and proceed; do not ask redundantly when the initial request already makes the intent clear.
 
 The chosen mode governs which of the later steps run and what the synthesis (step 6) presents. Steps below that depend on the mode are marked accordingly.
 
@@ -102,6 +102,8 @@ In **both** mode, keep the two buckets visually and conceptually separate so the
 ## 7. Work through it together
 
 Walk the user through the assessment collaboratively. Let them drive which items to dig into.
+
+After presenting comment triage, ask: "Would you like an independent code review of the diff as well?" Wait for agreement before running step 4, then present any agent findings under step 6. Offer this even if there are no existing comments; do not silently switch to code review. Skip the offer if code review was already requested or completed, or the user explicitly asked for comments only.
 
 If the user asks you to make a change, make it **locally** in the relevant file, scoped tightly to the item discussed, and confirm before moving on.
 
