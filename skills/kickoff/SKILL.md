@@ -9,8 +9,8 @@ Take a Linear ticket and produce a written implementation plan an executor can p
 
 This skill orchestrates Linear MCP and the plan skill:
 
-- **Linear access** goes through the Linear MCP tools exposed by the harness. Use the available tool schemas as the source of truth; don't fall back to the removed Linear skill, the `linear` CLI, the web UI, or raw API calls.
-- **Plan authoring** goes through the plan skill. Read `skills/plan/SKILL.md` and follow its process and templates. Don't reimplement clarification, shape choice, location, or validation here.
+- **Linear access** goes through the Linear MCP tools exposed by the harness. Use the available tool schemas as the source of truth;
+- **Plan authoring** goes through the plan skill, follow its process and templates. Don't reimplement clarification, shape choice, location, or validation here.
 
 Kickoff's job is the glue: resolve the ticket, gather its context, confirm it's worth starting, mark it started, do ticket-grounded exploration, then hand a well-briefed problem to the plan skill.
 
