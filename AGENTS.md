@@ -39,6 +39,7 @@ The following non-standard CLI tools are available; prefer them over the default
 
 - Prefer a direct tool call for a single operation when the tool is directly available.
 - Use codemode to batch independent calls, chain dependent calls, process results before returning them, or access tools available only through codemode.
+- Give codemode batches an explicit worst-case deadline using `timeout_ms` in the leading `// @options:` JSON comment to avoid indefinite stalls; no deadline is set by default. Size it for the actual work: the slowest parallel call or the combined sequential steps, plus headroom for retries and overhead. Deadline expiry cancels pending calls but does not undo completed effects.
 - Do not wrap a single call in codemode merely to print its unchanged result.
 - Multiple shell commands inside one Bash invocation still constitute one tool call; they do not by themselves justify codemode.
 
