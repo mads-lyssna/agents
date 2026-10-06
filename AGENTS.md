@@ -1,6 +1,7 @@
 ## General rules
 
 - Match the surrounding code’s comment density and style. Add comments when they explain a non-obvious constraint, invariant, workaround, or design tradeoff; do not narrate straightforward code.
+- Keep all documentation and code comments stateless: describe behaviour, constraints, and rationale, never point-in-time history or status (PRs, issues, rollout progress, or “recently changed” narratives). Keep change history in version control.
 - State the intended change before editing when scope, authorization, or the requested outcome is ambiguous
 
 ## Tools
