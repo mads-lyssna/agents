@@ -4,7 +4,7 @@ Personal configuration for coding agents: shared working conventions in [`AGENTS
 
 ## Repository layout
 
-- `AGENTS.md` defines shared rules and preferences for editing, tools, commits, testing, language conventions, and devcontainers.
+- `AGENTS.md` defines shared rules and preferences for editing, tools, commits, testing, and language conventions.
 - `skills/<name>/SKILL.md` describes when a skill applies and the workflow an agent should follow.
 - `skills/plan/templates/` contains reusable templates for single-file and multi-file implementation plans.
 
